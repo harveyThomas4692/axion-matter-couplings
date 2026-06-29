@@ -1,0 +1,8 @@
+# Generated outputs (scan runs, trained networks, point clouds)
+results/
+# Generated figures
+figures/
+# Python caches
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
