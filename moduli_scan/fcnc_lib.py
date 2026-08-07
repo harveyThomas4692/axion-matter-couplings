@@ -50,9 +50,13 @@ def _inv_sqrt(Mx):
 
 
 def _canon(G, Lam, direction):
-    """Canonical coupling M = -i*xi for one axion direction (stage3:118-120). Hermitian."""
+    """Canonical coupling M = -i*xi for one axion direction (stage3:118-120). Hermitian.
+
+    The 1/sqrt(2) is canon()'s real-scalar normalisation: the stored Lambda carries the
+    other half of the split (the 0.5), but not this factor.
+    """
     Gis = _inv_sqrt(G)
-    return -1j * (Gis @ (1j * np.einsum('i,iIJ->IJ', direction, Lam)) @ Gis)
+    return (1.0 / np.sqrt(2.0)) * -1j * (Gis @ (1j * np.einsum('i,iIJ->IJ', direction, Lam)) @ Gis)
 
 
 def _cplx(d):

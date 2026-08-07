@@ -21,7 +21,9 @@ print("fields :", list(nu_pb)); print("sectors:", list(SECTORS)); print("clouds 
 
 # The two overlap integrals, per sector, on that sector's cloud:
 #   matter Kahler metric  G_IJ = (1/2V) INT nu_I ^ star(H nu_J)          [the NORMALISATION]
-#   axion coupling        Lambda_iIJ = (1/2V) INT (star omega_i) ^ nu_I ^ (H nu_J)
+#   axion coupling        Lambda_iIJ = (1/2)*(1/2V) INT (star omega_i) ^ nu_I ^ (H nu_J)
+#     -- the extra 1/2 is the Green-Schwarz / one-loop vertex 1/(4pi) (vs the naive
+#        1/(2pi); the pi's cancel against the 2pi decay constant).
 # Both reduce to Levi-Civita wedge contractions over the trained geometry (eps eps g g / eps eps g W).
 # G here is the matter Kahler metric G_IJ = (1/2V) INT nu_I^star(H nu_J), i.e. (1/4V)<aux*eps eps g g nu(Hnu)>
 # -- the SAME convention as axion_coupling.ipynb (it is 2x the up-Yukawa notebook's K, which carries an extra 1/2).
@@ -41,7 +43,8 @@ def sector_integrals(forms, cloud_key, block_end, perm_key):
             G[I,J] = (1.0/(4*V_CY))*np.mean(aux*Qgg)
             for i in range(4):
                 QgW = np.einsum('xab,xcd,xe,xf,acf,bde->x', g, gref[:,i], nu[I], Hnu, _e3, _e3)
-                Lam[i,I,J] = (-(1.0/(2*V_CY))*np.mean(aux*QgW) + (1.0/(4*V_CY))*np.mean(aux*trgW[:,i]*Qgg))
+                # 0.5 = Green-Schwarz / one-loop vertex 1/(4pi) (the "2" in the listed Lambda equation)
+                Lam[i,I,J] = 0.5*(-(1.0/(2*V_CY))*np.mean(aux*QgW) + (1.0/(4*V_CY))*np.mean(aux*trgW[:,i]*Qgg))
     G = 0.5*(G+G.conj().T)
     for i in range(4): Lam[i] = 0.5*(Lam[i]+Lam[i].conj().T)
     # relabel Lambda's modulus index back to the unpermuted basis: Lambda^F_i = Lambda^computed_{sigma(i)}
@@ -116,7 +119,10 @@ print(f"# eaten dirs = {len(eaten)} (expect 3 anomalous U(1)s)")
 # for EVERY sector (the L_2 family block, the L_5 singlet, and each Higgs/lepton singlet).
 def canon(r, direction):
     G = results[r]['G']; Lam = results[r]['Lam']
-    Gis = inv_sqrt(G); return -1j*(Gis @ (1j*np.einsum('i,iIJ->IJ', direction, Lam)) @ Gis)
+    Gis = inv_sqrt(G)
+    # 1/sqrt(2): canonically normalise the REAL axion phi (kinetic (1/2)(d phi)^2).  `direction` is unit-norm in
+    # g_ij=(1/4)dd(-ln V), the metric of the COMPLEXIFIED Kahler modulus T=t+ib (|dT|^2), so phi=sqrt(2)*e-hat.
+    return (1.0/np.sqrt(2)) * -1j*(Gis @ (1j*np.einsum('i,iIJ->IJ', direction, Lam)) @ Gis)
 def show(M):
     # M = -i*xi is Hermitian: diagonal = flavour-diagonal coupling, off-diagonal = flavour-changing (FCNC)
     print("        diag =", np.round(np.real(np.diag(M)),4))
