@@ -1,49 +1,13 @@
 # moduli_scan
 
-Run the three-stage axion-matter-coupling pipeline across a grid of complex-structure
-parameters `psi1` (with multiple network-initialisation seeds) and reproduce the coupling
-figures. The stage scripts use the same calculation as the root notebooks; this directory
-adds the scan harness, the figure scripts, and the aggregated results so the figures can
-be regenerated without re-running the scan.
+Scan harnesses, aggregated data and figure scripts for the two models of the paper:
 
-Run all commands from the repository root.
+- **`model1/`** — the complex-structure scan: couplings vs `psi1` (real axis and complex
+  plane), at the fixed symmetric Kähler point `t=(1,1,1,1)`.
+- **`model2/`** — the Kähler-moduli scan: couplings vs the D-flat shape modulus `t3`
+  (with `t2=1`, `t1=(t3-2)(t3+1)`, `t4=t1/t3`), at fixed complex structure
+  `psi0=2, psi1=1`.
 
-## Pipeline
-
-For each `(psi1, seed)` point:
-
-1. **Point cloud** — `gen_cloud.py` builds the shared point cloud for a given `psi1` (one
-   cloud per `psi1`, reused across seeds).
-2. **Three stages** — `stage1_yukawa.py` → `stage2_matter.py` → `stage3_axion.py` train the
-   metric / bundle / harmonic-form networks and compute the matter fields and the
-   axion-matter couplings, writing one `results.json` per run.
-   `run_point.sh <psi1> <seed> [n_points] [epochs]` drives all three stages for one point.
-3. **Aggregate** — `aggregate.py` (real-axis), `aggregate_complex.py` (complex `psi1`) and
-   `aggregate_fcnc.py` (off-diagonal / flavour-changing entries) collect the per-run
-   `results.json` into the `data/combined*.json` summaries.
-
-`patch_cymetric.py` is a one-time compatibility shim for cymetric's JAX trainer (see its
-header). `scan.sbatch` / `scan_complex.sbatch` are example SLURM array submissions —
-adjust account, partition and paths for your cluster, and set `PYTHON` to your
-`cymetric[jax]` interpreter.
-
-## Data
-
-`data/` holds the aggregated `combined*.json` summaries plus the per-run
-`data/runs/<point>/results.json`. Generated scan outputs (point clouds, trained networks,
-fresh run directories) land under `results/` and are not tracked.
-
-## Figures
-
-The scripts in `plots/` read `data/` and write PDFs to `figures/`:
-
-```
-python moduli_scan/plots/plot_couplings.py      # couplings vs psi1, per sector (real axis)
-python moduli_scan/plots/plot_fcnc.py           # off-diagonal (FCNC) couplings vs psi1
-python moduli_scan/plots/plot_complex.py        # complex-psi1 maps + CP-proxy null check
-python moduli_scan/plots/plot_complex_diag.py   # complex-psi1 diagonal-coupling plane maps
-```
-
-The real-axis plots read only the `combined*.json` summaries; the complex-`psi1` plots
-reconstruct the coupling matrices from the per-run `data/runs/` files. Pass `--no-latex`
-to disable LaTeX rendering if no TeX install is available.
+Each directory is self-contained: pipeline scripts, an example SLURM submission, the
+aggregated scan data under `data/`, and figure scripts under `plots/`. See the README in
+each. Run all commands from the repository root.
