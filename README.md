@@ -1,7 +1,7 @@
 # axion-matter-couplings
 The code for our paper on calculating Axion-Matter-Couplings from first principles. 
 
-Find the preprint for our paper on ArXiv: https://arxiv.org/abs/xxxx.xxxxx
+Find the preprint for our paper on ArXiv: [https://arxiv.org/abs/2609.20911](https://arxiv.org/abs/2609.20911)
 
 This makes use of the cymetric package: https://github.com/ruehlef/cymetric
 
